@@ -26,7 +26,7 @@ for i in range(1, len(header) - 1):
     plt.grid()
     plt.savefig(header[i] + '.png', bbox_inches='tight')
     plt.clf()
-x=3
+
 trainmean = []
 trainstd = []
 trainmin = []
