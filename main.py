@@ -10,7 +10,22 @@ traindf = df.iloc[:int(0.8 * len(df)), :]
 traindf = traindf.loc[(traindf['ap_lo'] < 300) & (traindf['ap_lo'] > 0)]
 traindf = traindf.loc[(traindf['ap_hi'] < 300) & (traindf['ap_hi'] > 50)]
 traindf = traindf.loc[traindf['age'] > 14000]
-testdf = df.iloc[1 + int(0.2 * len(df)):, :]
+testdf = df.iloc[1 + int(0.8 * len(df)):, :]
+traindf_cardio1 = traindf.loc[traindf['cardio'] == 1, :]
+traindf_cardio0 = traindf.loc[traindf['cardio'] == 0, :]
+testdf_cardio1 = testdf.loc[testdf['cardio'] == 1, :]
+testdf_cardio0 = testdf.loc[testdf['cardio'] == 0, :]
+plt.bar([1, 2], [len(traindf_cardio0), len(testdf_cardio0)], color='r', width=0.25, edgecolor='black', label='cardio=0')
+plt.bar([1.25, 2.25], [len(traindf_cardio1), len(testdf_cardio1)],
+        color='b', width=0.25, edgecolor='black', label='cardio=1')
+plt.xticks([1.125, 2.125], ['cardio train data', 'cardio test data'])
+plt.title('Cardiovascular disease counting cases', fontsize=24)
+plt.xlabel('Concepts', fontweight='bold', fontsize=14)
+plt.ylabel('Count cases', fontweight='bold', fontsize=14)
+plt.legend()
+plt.grid()
+plt.savefig('Count_cases.png', bbox_inches='tight')
+plt.clf()
 
 for i in range(1, len(header) - 1):
     traindf_cardio1 = traindf.loc[traindf['cardio'] == 1, header[i]]
