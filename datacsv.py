@@ -200,16 +200,17 @@ class DataBinaryOutputCSV:
         _, ax = plt.subplots(figsize=(self.fig_width, self.fig_height))
         plt.pcolormesh(self.pca.components_, cmap=plt.cm.cool)
         plt.colorbar()
-        pca_range = [x + 0.5 for x in range(self.pca.components_.shape[1])]
+        pca_yrange = [x + 0.5 for x in range(self.pca.components_.shape[0])]
+        pca_xrange = [x + 0.5 for x in range(self.pca.components_.shape[1])]
         try:
-            plt.xticks(pca_range, self.X_train.keys(), rotation=60, ha='center')
+            plt.xticks(pca_xrange, self.X_train.keys(), rotation=60, ha='center')
         except (Exception,):
             pass
         ax.xaxis.tick_top()
         str_pca = []
-        for i in range(self.X_train.shape[1]):
+        for i in range(self.pca.components_.shape[0]):
             str_pca.append('Component ' + str(i + 1))
-        plt.yticks(pca_range, str_pca)
+        plt.yticks(pca_yrange, str_pca)
         plt.xlabel("Feature", weight='bold', fontsize=14)
         plt.ylabel("Principal components", weight='bold', fontsize=14)
         plt.savefig('PCA_scaled_breakdown.png', bbox_inches='tight')
