@@ -31,6 +31,7 @@ class DataBinaryOutputCSV:
         self.X_train = None
         self.X_train_scaled = None
         self.X_train_scaled_pca = None
+        self.X_test_scaled_pca = None
         self.X_train_scaled_pca_output0 = None
         self.X_train_scaled_pca_output1 = None
         self.X_test = None
@@ -43,12 +44,14 @@ class DataBinaryOutputCSV:
         self.y_test_output1 = None
 
     def read_csv(self):
+        """"Read csv and convert it to dataframe"""
         dataset = pd.read_csv(self.name)
         print("Full source data from CSV type: {} and shape: {}".format(type(dataset), dataset.shape))
         return dataset
 
     @staticmethod
     def binary_output_split(dataset, class_column_name):
+        """"Split the input dataset according to the binary class value """
         output0 = dataset.loc[dataset[class_column_name] == 0, :]
         output1 = dataset.loc[dataset[class_column_name] == 1, :]
         print("Cases class = 0 type: {} and shape: {}".format(type(output0), output0.shape))
@@ -56,6 +59,7 @@ class DataBinaryOutputCSV:
         return [output0, output1]
 
     def binary_class_histogram(self, dataset, class_column_name, plot_name, x_axes_name, y_axes_name, plot_legend):
+        """Plot histogram based on input dataset"""
         [output0, output1] = self.binary_output_split(dataset, class_column_name)
         fig, axes = plt.subplots(math.ceil(dataset.shape[1] / 2), 2, figsize=(self.fig_width, self.fig_height))
         if dataset.shape[1] % 2 == 1:
@@ -74,6 +78,7 @@ class DataBinaryOutputCSV:
         plt.clf()
 
     def data_scrubbing(self, dataset, columns_to_remove, concept1, concept2):
+        """Scrub data from input dataset by removing the introduced columns, duplicates, empty and wrong values"""
         # Remove non-meaningful columns
         dataset.drop(columns_to_remove, axis=1, inplace=True)
         print("Scrubber data after eliminating non-meaningful columns type: {} and shape: {}".format(type(dataset),
@@ -109,6 +114,7 @@ class DataBinaryOutputCSV:
         return dataset
 
     def train_test_split(self, feature_data, class_data, test_size):
+        """Split data into training and test datasets and plot the class distribution in each set"""
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(feature_data, class_data,
                                                                                 test_size=test_size, shuffle=True,
                                                                                 stratify=class_data, random_state=1)
@@ -121,6 +127,7 @@ class DataBinaryOutputCSV:
         self.plot_output_class_distribution()
 
     def plot_output_class_distribution(self):
+        """Plot the class distribution in the training and test dataset"""
         self.y_train_output1 = self.y_train[self.y_train == 1]
         self.y_train_output0 = self.y_train[self.y_train == 0]
         self.y_test_output1 = self.y_test[self.y_test == 1]
@@ -154,6 +161,7 @@ class DataBinaryOutputCSV:
         plt.clf()
 
     def data_scaling(self, algorithm):
+        """Scaling data to normalization or standardization"""
         if algorithm.lower() == 'norm':
             scaler = MinMaxScaler()
         elif algorithm.lower() == 'standard':
@@ -168,9 +176,11 @@ class DataBinaryOutputCSV:
         print("X_test_scaled type: {} and shape: {} \n".format(type(self.X_test_scaled), self.X_test_scaled.shape))
 
     def apply_pca(self, ncomps):
+        """Apply PCA algorithm in the scaled trained data and plot meaningful graphs"""
         self.pca = PCA(n_components=ncomps)
         self.pca.fit(self.X_train_scaled)
         self.X_train_scaled_pca = self.pca.transform(self.X_train_scaled)
+        self.X_test_scaled_pca = self.pca.transform(self.X_test_scaled)
         print("X_train_scaled PCA type: {} and shape: {}".format(type(self.X_train_scaled_pca),
                                                                  self.X_train_scaled_pca.shape))
         self.X_train_scaled_pca_output1 = self.X_train_scaled_pca[self.y_train == 1, :]
@@ -186,11 +196,15 @@ class DataBinaryOutputCSV:
             self.plot_first_second_pca()
 
     def plot_pca_breakdown(self):
+        """Plot the PCA breakdown per each feature"""
         _, ax = plt.subplots(figsize=(self.fig_width, self.fig_height))
         plt.pcolormesh(self.pca.components_, cmap=plt.cm.cool)
         plt.colorbar()
         pca_range = [x + 0.5 for x in range(self.pca.components_.shape[1])]
-        plt.xticks(pca_range, self.X_train.keys(), rotation=60, ha='center')
+        try:
+            plt.xticks(pca_range, self.X_train.keys(), rotation=60, ha='center')
+        except (Exception,):
+            pass
         ax.xaxis.tick_top()
         str_pca = []
         for i in range(self.X_train.shape[1]):
@@ -202,6 +216,7 @@ class DataBinaryOutputCSV:
         plt.clf()
 
     def plot_pca_scree(self):
+        """Plot the scree plot of the PCA to understand the covered variance"""
         fig, ax1 = plt.subplots(figsize=(self.fig_width, self.fig_height))
         ax2 = ax1.twinx()
         label1 = ax1.plot(range(1, len(self.pca.components_) + 1), self.pca.explained_variance_ratio_,
@@ -221,6 +236,7 @@ class DataBinaryOutputCSV:
         plt.clf()
 
     def plot_first_second_pca(self):
+        """Plot first vs second PCA component"""
         plt.subplots(figsize=(self.fig_width, self.fig_height))
         plt.scatter(self.X_train_scaled_pca_output1[:, 0], self.X_train_scaled_pca_output1[:, 1],
                     s=10, marker='^', c='red', label='output=1')
@@ -235,6 +251,7 @@ class DataBinaryOutputCSV:
         plt.clf()
 
     def apply_algorithm(self, algorithm, params):
+        """Apply the machine learning algorithm to the train and test datasets"""
         time0 = time.time()
         if algorithm.lower() == 'knn':
             model = KNeighborsClassifier(n_neighbors=params['n_neighbors'], weights=params['weights'])
