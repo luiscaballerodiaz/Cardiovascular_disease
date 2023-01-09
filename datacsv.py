@@ -348,6 +348,6 @@ class DataBinaryOutputCSV:
             for j in range(self.out_data.shape[1]):
                 sheets[0].cell(i + 2, j + 3).value = self.out_data[i, j]
         try:
-            wb.save(name + '.xlsx')
+            wb.save(name)
         except PermissionError:
             sys.exit('ERROR: Excel file open. Please close it to be modified')

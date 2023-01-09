@@ -33,4 +33,4 @@ datacsv.apply_algorithm(algorithm='mlp', params={'activation': 'tanh', 'alpha': 
 datacsv.apply_algorithm(algorithm='mlp', params={'activation': 'tanh', 'alpha': 0.01, 'hidden_layer_sizes': 100})
 datacsv.apply_algorithm(algorithm='mlp', params={'activation': 'tanh', 'alpha': 10, 'hidden_layer_sizes': 100})
 datacsv.apply_algorithm(algorithm='svm', params={'kernel': 'rbf', 'C': 0.1, 'gamma': 1})
-datacsv.write_results_excel_file('proba')
+datacsv.write_results_excel_file('results.xlsx')
