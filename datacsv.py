@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import math
 import time
+import sys
+from openpyxl import Workbook
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
@@ -27,6 +29,9 @@ class DataBinaryOutputCSV:
         self.fig_height = 10
         self.bar_width = 0.25
         self.percentile = 0.02
+        self.method = []
+        self.parameters = []
+        self.out_data = np.zeros([0, 8])
         self.pca = None
         self.X_train = None
         self.X_train_scaled = None
@@ -58,7 +63,7 @@ class DataBinaryOutputCSV:
         print("Cases class = 1 type: {} and shape: {} \n".format(type(output1), output1.shape))
         return [output0, output1]
 
-    def binary_class_histogram(self, dataset, class_column_name, plot_name, x_axes_name, y_axes_name, plot_legend):
+    def binary_class_histogram(self, dataset, class_column_name, plot_name, x_axes_name, y_axes_name):
         """Plot histogram based on input dataset"""
         [output0, output1] = self.binary_output_split(dataset, class_column_name)
         fig, axes = plt.subplots(math.ceil(dataset.shape[1] / 2), 2, figsize=(self.fig_width, self.fig_height))
@@ -73,7 +78,7 @@ class DataBinaryOutputCSV:
             ax[i].tick_params(axis='both', labelsize=8)
             ax[i].set_ylabel(y_axes_name, fontsize=8)
             ax[i].set_xlabel(x_axes_name, fontsize=8)
-        ax[0].legend(plot_legend, loc="best")
+        ax[0].legend(['output0', 'output1'], loc="best")
         plt.savefig(plot_name, bbox_inches='tight')
         plt.clf()
 
@@ -205,12 +210,15 @@ class DataBinaryOutputCSV:
         try:
             plt.xticks(pca_xrange, self.X_train.keys(), rotation=60, ha='center')
         except (Exception,):
-            pass
+            str_xpca = []
+            for i in range(self.pca.components_.shape[1]):
+                str_xpca.append('Feature ' + str(i + 1))
+            plt.xticks(pca_xrange, str_xpca, rotation=60, ha='center')
         ax.xaxis.tick_top()
-        str_pca = []
+        str_ypca = []
         for i in range(self.pca.components_.shape[0]):
-            str_pca.append('Component ' + str(i + 1))
-        plt.yticks(pca_yrange, str_pca)
+            str_ypca.append('Component ' + str(i + 1))
+        plt.yticks(pca_yrange, str_ypca)
         plt.xlabel("Feature", weight='bold', fontsize=14)
         plt.ylabel("Principal components", weight='bold', fontsize=14)
         plt.savefig('PCA_scaled_breakdown.png', bbox_inches='tight')
@@ -257,9 +265,9 @@ class DataBinaryOutputCSV:
         if algorithm.lower() == 'knn':
             model = KNeighborsClassifier(n_neighbors=params['n_neighbors'], weights=params['weights'])
         elif algorithm.lower() == 'logreg':
-            model = LogisticRegression(random_state=params['random_state'], C=params['C'], max_iter=params['max_iter'])
+            model = LogisticRegression(random_state=params['random_state'], C=params['C'])
         elif algorithm.lower() == 'linearsvc':
-            model = LinearSVC(random_state=params['random_state'], C=params['C'], max_iter=params['max_iter'])
+            model = LinearSVC(random_state=params['random_state'], C=params['C'])
         elif algorithm.lower() == 'naivebayes':
             model = GaussianNB()
         elif algorithm.lower() == 'tree':
@@ -282,15 +290,66 @@ class DataBinaryOutputCSV:
         print('SCORE WITH {} ALGORITHM AND PARAMS {}\n'.format(algorithm, params))
         model.fit(self.X_train, self.y_train)
         time1 = time.time()
-        print('Unscaled modeling time [seconds]: {}'.format(str(time1 - time0)))
-        print('Unscaled TRAIN dataset: {}'.format(str(model.score(self.X_train, self.y_train))))
-        print('Unscaled TEST dataset: {}'.format(str(model.score(self.X_test, self.y_test))))
+        unscaled_model_time = round(time1 - time0, 4)
+        unscaled_train_score = round(model.score(self.X_train, self.y_train), 4)
+        unscaled_test_score = round(model.score(self.X_test, self.y_test), 4)
+        print('Unscaled modeling time [seconds]: {}'.format(unscaled_model_time, 4))
+        print('Unscaled TRAIN dataset: {}'.format(unscaled_train_score, 4))
+        print('Unscaled TEST dataset: {}'.format(unscaled_test_score, 4))
         time2 = time.time()
-        print('Unscaled predicting time [seconds]: {}\n'.format(str(time2 - time1)))
+        unscaled_predict_time = round(time2 - time1, 4)
+        print('Unscaled predicting time [seconds]: {}\n'.format(unscaled_predict_time, 4))
         model.fit(self.X_train_scaled, self.y_train)
         time3 = time.time()
-        print('Scaled modeling time [seconds]: {}'.format(str(time3 - time2)))
-        print('Scaling TRAIN dataset: {}'.format(str(model.score(self.X_train_scaled, self.y_train))))
-        print('Scaling TEST dataset: {}'.format(str(model.score(self.X_test_scaled, self.y_test))))
+        scaled_model_time = round(time3 - time2, 4)
+        scaled_train_score = round(model.score(self.X_train_scaled, self.y_train), 4)
+        scaled_test_score = round(model.score(self.X_test_scaled, self.y_test), 4)
+        print('Scaled modeling time [seconds]: {}'.format(scaled_model_time, 4))
+        print('Scaling TRAIN dataset: {}'.format(scaled_train_score, 4))
+        print('Scaling TEST dataset: {}'.format(scaled_test_score, 4))
         time4 = time.time()
-        print('Scaled predicting time [seconds]: {}\n\n'.format(str(time4 - time3)))
+        scaled_predict_time = round(time4 - time3, 4)
+        print('Scaled predicting time [seconds]: {}\n\n'.format(scaled_predict_time, 4))
+        results = np.array([[unscaled_model_time, unscaled_predict_time, unscaled_train_score, unscaled_test_score,
+                             scaled_model_time, scaled_predict_time, scaled_train_score, scaled_test_score]])
+        self.out_data = np.append(self.out_data, results, axis=0)
+        self.method.append(algorithm)
+        self.parameters.append(params)
+
+    def write_results_excel_file(self, name):
+        """Write the simulation results in an output excel file"""
+        # Create excel file with the corresponding sheets
+        sheets = []
+        wb = Workbook()
+        sheets.append(wb.active)
+        sheets[0].title = 'SIMULATION RESULTS'
+        # Define column width
+        for column in range(1, 11):
+            column_char = str(chr(64 + column))
+            if column == 2:
+                sheets[0].column_dimensions[column_char].width = 60
+            else:
+                sheets[0].column_dimensions[column_char].width = 20
+        # Write headers
+        header = ['Algorithm', 'Params', 'Unscaled Model Time', 'Unscaled Predict Time', 'Unscaled Train Score',
+                  'Unscaled Test Score', 'Scaled Model Time', 'Scaled Predict Time', 'Scaled Train Score',
+                  'Scaled Test Score']
+        for i in range(len(header)):
+            sheets[0].cell(1, i + 1).value = header[i]
+        # Write algorithms
+        for i in range(len(self.method)):
+            sheets[0].cell(i + 2, 1).value = self.method[i]
+        # Write parameters
+        for i in range(len(self.parameters)):
+            str_params = ''
+            for key, value in self.parameters[i].items():
+                str_params += ' ' + key + '=' + str(value)
+            sheets[0].cell(i + 2, 2).value = str_params
+        # Write data in excel sheet
+        for i in range(self.out_data.shape[0]):
+            for j in range(self.out_data.shape[1]):
+                sheets[0].cell(i + 2, j + 3).value = self.out_data[i, j]
+        try:
+            wb.save(name + '.xlsx')
+        except PermissionError:
+            sys.exit('ERROR: Excel file open. Please close it to be modified')
