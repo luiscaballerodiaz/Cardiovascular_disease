@@ -263,28 +263,26 @@ class DataBinaryOutputCSV:
         """Apply the machine learning algorithm to the train and test datasets"""
         time0 = time.time()
         if algorithm.lower() == 'knn':
-            model = KNeighborsClassifier(n_neighbors=params['n_neighbors'], weights=params['weights'])
+            model = KNeighborsClassifier(n_neighbors=params['n_neighbors'])
         elif algorithm.lower() == 'logreg':
-            model = LogisticRegression(random_state=params['random_state'], C=params['C'])
+            model = LogisticRegression(random_state=0, C=params['C'])
         elif algorithm.lower() == 'linearsvc':
-            model = LinearSVC(random_state=params['random_state'], C=params['C'])
+            model = LinearSVC(random_state=0, C=params['C'])
         elif algorithm.lower() == 'naivebayes':
             model = GaussianNB()
         elif algorithm.lower() == 'tree':
-            model = DecisionTreeClassifier(random_state=params['random_state'], max_depth=params['max_depth'])
+            model = DecisionTreeClassifier(random_state=0, max_depth=params['max_depth'])
         elif algorithm.lower() == 'forest':
-            model = RandomForestClassifier(random_state=params['random_state'], max_depth=params['max_depth'],
+            model = RandomForestClassifier(random_state=0, max_depth=params['max_depth'],
                                            n_estimators=params['n_estimators'], max_features=params['max_features'])
         elif algorithm.lower() == 'gradient':
-            model = GradientBoostingClassifier(random_state=params['random_state'], max_depth=params['max_depth'],
-                                               learning_rate=params['learning_rate'],
-                                               n_estimators=params['n_estimators'])
+            model = GradientBoostingClassifier(random_state=0, learning_rate=params['learning_rate'],
+                                               n_estimators=params['n_estimators'], max_depth=params['max_depth'])
         elif algorithm.lower() == 'svm':
-            model = SVC(random_state=params['random_state'], kernel=params['kernel'], C=params['C'],
-                        gamma=params['gamma'])
+            model = SVC(random_state=0, kernel=params['kernel'], C=params['C'], gamma=params['gamma'])
         elif algorithm.lower() == 'mlp':
-            model = MLPClassifier(random_state=params['random_state'], activation=params['activation'],
-                                  hidden_layer_sizes=params['hidden_layer_sizes'], alpha=params['alpha'])
+            model = MLPClassifier(random_state=0, activation=params['activation'], alpha=params['alpha'],
+                                  hidden_layer_sizes=params['hidden_layer_sizes'])
         else:
             return None
         print('SCORE WITH {} ALGORITHM AND PARAMS {}\n'.format(algorithm, params))
