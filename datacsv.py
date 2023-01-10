@@ -82,12 +82,21 @@ class DataBinaryOutputCSV:
         plt.savefig(plot_name, bbox_inches='tight')
         plt.clf()
 
-    def data_scrubbing(self, dataset, columns_to_remove, concept1, concept2):
-        """Scrub data from input dataset by removing the introduced columns, duplicates, empty and wrong values"""
+    def data_scrubbing(self, dataset, columns_to_remove, concept1, concept2, encodings, class_column_name):
+        """Scrub data from input dataset by removing the introduced columns, duplicates, empty and wrong values,
+        and apply one hot encoding for categorical features"""
         # Remove non-meaningful columns
         dataset.drop(columns_to_remove, axis=1, inplace=True)
         print("Scrubber data after eliminating non-meaningful columns type: {} and shape: {}".format(type(dataset),
                                                                                                      dataset.shape))
+        # One hot encoding
+        output_backup = dataset[class_column_name]
+        dataset.drop(class_column_name, axis=1, inplace=True)
+        for encoding in encodings:
+            dataset[encoding] = dataset[encoding].astype(str)
+        dataset = pd.get_dummies(dataset, columns=encodings)
+        dataset = pd.concat([dataset, output_backup], axis=1)
+        print("Scrubber data after one hot encoding type: {} and shape: {}".format(type(dataset), dataset.shape))
         # Remove duplicates
         dataset.drop_duplicates(keep='first', inplace=True)
         print("Scrubber data after eliminating duplicates type: {} and shape: {}".format(type(dataset), dataset.shape))
@@ -95,7 +104,7 @@ class DataBinaryOutputCSV:
         df_qmin = dataset.quantile(self.percentile)
         df_qmax = dataset.quantile(1 - self.percentile)
         for i in range(len(dataset.keys())):
-            if min(dataset.iloc[:, i]) == 0 and max(dataset.iloc[:, i] <= 3):
+            if min(dataset.iloc[:, i]) == 0 and max(dataset.iloc[:, i] <= 1):
                 continue
             else:
                 dataset = dataset.loc[dataset[dataset.keys()[i]] >= df_qmin[i], :]
