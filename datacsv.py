@@ -272,28 +272,27 @@ class DataBinaryOutputCSV:
         """Apply the machine learning algorithm to the train and test datasets"""
         time0 = time.time()
         if algorithm.lower() == 'knn':
-            model = KNeighborsClassifier(n_neighbors=params['n_neighbors'])
+            model = KNeighborsClassifier()
         elif algorithm.lower() == 'logreg':
-            model = LogisticRegression(random_state=0, C=params['C'])
+            model = LogisticRegression(random_state=0)
         elif algorithm.lower() == 'linearsvc':
-            model = LinearSVC(random_state=0, C=params['C'])
+            model = LinearSVC(random_state=0)
         elif algorithm.lower() == 'naivebayes':
             model = GaussianNB()
         elif algorithm.lower() == 'tree':
-            model = DecisionTreeClassifier(random_state=0, max_depth=params['max_depth'])
+            model = DecisionTreeClassifier(random_state=0)
         elif algorithm.lower() == 'forest':
-            model = RandomForestClassifier(random_state=0, max_depth=params['max_depth'],
-                                           n_estimators=params['n_estimators'], max_features=params['max_features'])
+            model = RandomForestClassifier(random_state=0)
         elif algorithm.lower() == 'gradient':
-            model = GradientBoostingClassifier(random_state=0, learning_rate=params['learning_rate'],
-                                               n_estimators=params['n_estimators'], max_depth=params['max_depth'])
+            model = GradientBoostingClassifier(random_state=0)
         elif algorithm.lower() == 'svm':
-            model = SVC(random_state=0, kernel=params['kernel'], C=params['C'], gamma=params['gamma'])
+            model = SVC(random_state=0)
         elif algorithm.lower() == 'mlp':
-            model = MLPClassifier(random_state=0, activation=params['activation'], alpha=params['alpha'],
-                                  hidden_layer_sizes=params['hidden_layer_sizes'])
+            model = MLPClassifier(random_state=0)
         else:
             return None
+        for key, value in params.items():
+            setattr(model, key, value)
         print('SCORE WITH {} ALGORITHM AND PARAMS {}\n'.format(algorithm, params))
         model.fit(self.X_train, self.y_train)
         time1 = time.time()
