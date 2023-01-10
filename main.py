@@ -13,7 +13,7 @@ datacsv.train_test_split(feature_data=df.iloc[:, :-1], class_data=df.iloc[:, [-1
 datacsv.data_scaling(algorithm='standard')
 datacsv.apply_pca(ncomps=df.shape[1]-1)
 
-datacsv.apply_algorithm(algorithm='knn', params={'n_neighbors': 1})
+datacsv.apply_algorithm(algorithm='knn', params={'n_neighbors': 2})
 datacsv.apply_algorithm(algorithm='knn', params={'n_neighbors': 7})
 datacsv.apply_algorithm(algorithm='knn', params={'n_neighbors': 25})
 datacsv.apply_algorithm(algorithm='linearsvc', params={'C': 0.01})
