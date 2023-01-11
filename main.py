@@ -1,7 +1,7 @@
-from datacsv import DataBinaryOutputCSV
+from binaryclass_datacsv import DataBinaryClassCSV
 
 
-datacsv = DataBinaryOutputCSV('cardio_train.csv')
+datacsv = DataBinaryClassCSV('cardio_train.csv')
 sourcedf = datacsv.read_csv()
 datacsv.binary_class_histogram(dataset=sourcedf, class_column_name='cardio', plot_name='Original histogram.png',
                                x_axes_name='Feature magnitude', y_axes_name='Frequency')

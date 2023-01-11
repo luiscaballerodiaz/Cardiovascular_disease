@@ -20,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 
 
-class DataBinaryOutputCSV:
+class DataBinaryClassCSV:
     """Class to operate with a dataset in CSV format"""
 
     def __init__(self, name):
