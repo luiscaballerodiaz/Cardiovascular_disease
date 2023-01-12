@@ -248,7 +248,7 @@ class DataBinaryClassCSV:
         print("PCA component shape: {} \n".format(self.pca.components_.shape))
         self.plot_pca_breakdown()
         self.plot_pca_scree()
-        if ncomps > 2:
+        if ncomps >= 2:
             self.plot_first_second_pca()
 
     def plot_pca_breakdown(self):
