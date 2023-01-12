@@ -75,7 +75,7 @@ class DataBinaryClassCSV:
             columns.append(dataset.columns.values[index_max])
             max_vector[index_max] = 0
         dfcopy = dfcopy.reindex(columns=columns)
-        dfcopy = dfcopy.replace(np.nan, 0)
+        dfcopy.replace(np.nan, 0, inplace=True)
         fig, axes = plt.subplots(math.ceil(dataset.shape[1] / max_features_row), 1,
                                  figsize=(self.fig_width, self.fig_height))
         ax = axes.ravel()
@@ -143,7 +143,7 @@ class DataBinaryClassCSV:
         df_qmin = dataset.quantile(self.percentile)
         df_qmax = dataset.quantile(1 - self.percentile)
         for i in range(len(dataset.keys())):
-            if min(dataset.iloc[:, i]) >= min_threshold and max(dataset.iloc[:, i] <= max_threshold):
+            if min(dataset.iloc[:, i]) >= min_threshold and max(dataset.iloc[:, i]) <= max_threshold:
                 continue
             else:
                 if max_filter:
