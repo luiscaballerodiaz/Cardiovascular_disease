@@ -118,7 +118,9 @@ class DataBinaryClassCSV:
         plt.savefig(plot_name + '.png', bbox_inches='tight')
         plt.clf()
 
-    def data_scrubbing(self, dataset, columns_to_remove, concept1, concept2, encodings, class_column_name):
+    def data_scrubbing(self, dataset, max_filter=False, min_filter=False, max_threshold=1, min_threshold=0,
+                       columns_to_remove='', concept1='',
+                       concept2='', encodings='', class_column_name=''):
         """Scrub data from input dataset by removing the introduced columns, duplicates, empty and wrong values,
         and apply one hot encoding for categorical features"""
         # Remove non-meaningful columns
@@ -140,11 +142,13 @@ class DataBinaryClassCSV:
         df_qmin = dataset.quantile(self.percentile)
         df_qmax = dataset.quantile(1 - self.percentile)
         for i in range(len(dataset.keys())):
-            if min(dataset.iloc[:, i]) == 0 and max(dataset.iloc[:, i] <= 1):
+            if min(dataset.iloc[:, i]) >= min_threshold and max(dataset.iloc[:, i] <= max_threshold):
                 continue
             else:
-                dataset = dataset.loc[dataset[dataset.keys()[i]] >= df_qmin[i], :]
-                dataset = dataset.loc[dataset[dataset.keys()[i]] <= df_qmax[i], :]
+                if max_filter:
+                    dataset = dataset.loc[dataset[dataset.keys()[i]] <= df_qmax[i], :]
+                if min_filter:
+                    dataset = dataset.loc[dataset[dataset.keys()[i]] >= df_qmin[i], :]
         print("Scrubber data after eliminating outliers type: {} and shape: {}".format(type(dataset), dataset.shape))
         # Remove empty rows
         dataset.replace('', np.nan, inplace=True)

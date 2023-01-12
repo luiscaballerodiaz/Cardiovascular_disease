@@ -7,7 +7,8 @@ datacsv.unclassed_boxplot(dataset=sourcedf.iloc[:, 1:], plot_name='Original boxp
 datacsv.binary_class_histogram(dataset=sourcedf, class_column_name='cardio', plot_name='Original histogram',
                                ncolumns=3)
 df = datacsv.data_scrubbing(dataset=sourcedf, columns_to_remove='id', concept1='ap_lo', concept2='ap_hi',
-                            encodings=['gender', 'cholesterol', 'gluc'], class_column_name='cardio')
+                            encodings=['gender', 'cholesterol', 'gluc'], class_column_name='cardio', max_filter=True,
+                            min_filter=True, max_threshold=1, min_threshold=0)
 datacsv.unclassed_boxplot(dataset=df, plot_name='Scrubbed boxplot', max_features_row=6)
 datacsv.binary_class_histogram(dataset=df, class_column_name='cardio', plot_name='Scrubbed histogram',
                                ncolumns=3)
