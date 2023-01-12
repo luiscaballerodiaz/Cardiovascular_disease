@@ -3,12 +3,14 @@ from binaryclass_datacsv import DataBinaryClassCSV
 
 datacsv = DataBinaryClassCSV('cardio_train.csv')
 sourcedf = datacsv.read_csv()
-datacsv.binary_class_histogram(dataset=sourcedf, class_column_name='cardio', plot_name='Original histogram.png',
-                               x_axes_name='Feature magnitude', y_axes_name='Frequency')
+datacsv.unclassed_boxplot(dataset=sourcedf.iloc[:, 1:], plot_name='Original boxplot', max_features_row=3)
+datacsv.binary_class_histogram(dataset=sourcedf, class_column_name='cardio', plot_name='Original histogram',
+                               ncolumns=3)
 df = datacsv.data_scrubbing(dataset=sourcedf, columns_to_remove='id', concept1='ap_lo', concept2='ap_hi',
                             encodings=['gender', 'cholesterol', 'gluc'], class_column_name='cardio')
-datacsv.binary_class_histogram(dataset=df, class_column_name='cardio', plot_name='Scrubber histogram.png',
-                               x_axes_name='Feature magnitude', y_axes_name='Frequency')
+datacsv.unclassed_boxplot(dataset=df, plot_name='Scrubbed boxplot', max_features_row=7)
+datacsv.binary_class_histogram(dataset=df, class_column_name='cardio', plot_name='Scrubbed histogram',
+                               ncolumns=3)
 datacsv.train_test_split(feature_data=df.iloc[:, :-1], class_data=df.iloc[:, [-1]], test_size=0.2)
 datacsv.data_scaling(algorithm='standard')
 datacsv.apply_pca(ncomps=df.shape[1]-1)
