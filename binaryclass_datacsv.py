@@ -123,16 +123,18 @@ class DataBinaryClassCSV:
         """Scrub data from input dataset by removing the introduced columns, duplicates, empty and wrong values,
         and apply one hot encoding for categorical features"""
         # Remove non-meaningful columns
-        dataset.drop(columns_to_remove, axis=1, inplace=True)
+        if columns_to_remove:
+            dataset.drop(columns_to_remove, axis=1, inplace=True)
         print("Scrubber data after eliminating non-meaningful columns type: {} and shape: {}".format(type(dataset),
                                                                                                      dataset.shape))
         # One hot encoding
-        output_backup = dataset[class_column_name]
-        dataset.drop(class_column_name, axis=1, inplace=True)
-        for encoding in encodings:
-            dataset[encoding] = dataset[encoding].astype(str)
-        dataset = pd.get_dummies(dataset, columns=encodings)
-        dataset = pd.concat([dataset, output_backup], axis=1)
+        if encodings:
+            output_backup = dataset[class_column_name]
+            dataset.drop(class_column_name, axis=1, inplace=True)
+            for encoding in encodings:
+                dataset[encoding] = dataset[encoding].astype(str)
+            dataset = pd.get_dummies(dataset, columns=encodings)
+            dataset = pd.concat([dataset, output_backup], axis=1)
         print("Scrubber data after one hot encoding type: {} and shape: {}".format(type(dataset), dataset.shape))
         # Remove duplicates
         dataset.drop_duplicates(keep='first', inplace=True)
@@ -156,12 +158,13 @@ class DataBinaryClassCSV:
         print("Scrubber data after eliminating empty datasets type: {} and shape: {}".format(type(dataset),
                                                                                              dataset.shape))
         # Remove wrong rows if concept1 is higher than concept2
-        index_to_drop = []
-        for i in range(dataset.shape[0]):
-            if dataset.iloc[i, dataset.columns.get_loc(concept1)] > dataset.iloc[i, dataset.columns.get_loc(concept2)]:
-                index_to_drop.append(i)
-        dataset.drop(index_to_drop, inplace=True)
-        dataset.reset_index(drop=True, inplace=True)
+        if concept1 and concept2:
+            index_to_drop = []
+            for i in range(dataset.shape[0]):
+                if dataset.iloc[i, dataset.columns.get_loc(concept1)] > dataset.iloc[i, dataset.columns.get_loc(concept2)]:
+                    index_to_drop.append(i)
+            dataset.drop(index_to_drop, inplace=True)
+            dataset.reset_index(drop=True, inplace=True)
         print("Scrubber data after eliminating non-consistent datasets type: {} and shape: {}".format(type(dataset),
                                                                                                       dataset.shape))
         return dataset
