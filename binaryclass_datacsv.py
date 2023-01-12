@@ -119,8 +119,7 @@ class DataBinaryClassCSV:
         plt.clf()
 
     def data_scrubbing(self, dataset, max_filter=False, min_filter=False, max_threshold=1, min_threshold=0,
-                       columns_to_remove='', concept1='',
-                       concept2='', encodings='', class_column_name=''):
+                       columns_to_remove='', concept1='', concept2='', encodings='', class_column_name=''):
         """Scrub data from input dataset by removing the introduced columns, duplicates, empty and wrong values,
         and apply one hot encoding for categorical features"""
         # Remove non-meaningful columns
