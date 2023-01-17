@@ -41,9 +41,9 @@ if cross_validation:
         {'classifier': [], 'preprocessing': [], 'classifier__n_estimators': [50, 100, 150],
          'classifier__max_depth': [3, 5, 7, 10, 15], 'classifier__max_features': [2, 3, 4, 5, 6]},
         {'classifier': [], 'preprocessing': [], 'classifier__n_estimators': [5, 12, 20, 35, 50],
-         'classifier__max_depth': [2, 3, 4, 5], 'classifier__learning_rate': [0.1, 0.5, 1]},
-         {'classifier': [], 'preprocessing': [], 'classifier__alpha': [0.01, 0.1, 0.5, 1, 10],
-          'classifier__hidden_layer_sizes': [[25, 25], 50, 100, 200]}]
+         'classifier__max_depth': [2, 3, 4, 5], 'classifier__learning_rate': [0.1, 0.3, 0.6, 1]},
+        {'classifier': [], 'preprocessing': [], 'classifier__alpha': [0.01, 0.1, 0.5, 1, 10],
+         'classifier__hidden_layer_sizes': [[25, 25], 50, 100, 200]}]
     grid = supervised.cross_grid_validation(algorithm=algorithm, scale=scale,
                                             param_grid=params, nfolds=5)
     pd_grid = pd.DataFrame(grid.cv_results_)

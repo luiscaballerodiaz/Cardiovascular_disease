@@ -85,6 +85,7 @@ class SupervisedAlgorithms:
         elif algorithm.lower() == 'mlp':
             model = MLPClassifier(random_state=0)
         else:
+            print('Algorithm was NOT provided.')
             return None
         for key, value in params.items():
             setattr(model, key, value)
@@ -144,6 +145,7 @@ class SupervisedAlgorithms:
             elif algorithm[i].lower() == 'mlp':
                 model.append(MLPClassifier(random_state=0))
             else:
+                print('Algorithm was NOT provided. Note the type must be a list.')
                 return None
             if scale[i].lower() == 'norm':
                 scaler.append(MinMaxScaler())

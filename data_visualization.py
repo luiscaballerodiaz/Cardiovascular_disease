@@ -51,6 +51,8 @@ class DataPlot:
                              rotation=10, ha='center')
             ax[i].set_ylabel('Feature magnitude', fontsize=8)
         ax[0].set_title(plot_name, fontsize=24, fontweight='bold')
+        plt.subplots_adjust(top=0.85)
+        fig.tight_layout(h_pad=2)
         plt.savefig(plot_name + '.png', bbox_inches='tight')
         plt.clf()
 
@@ -74,6 +76,8 @@ class DataPlot:
             ax[i].set_ylabel('Frequency', fontsize=8)
             ax[i].set_xlabel('Feature magnitude', fontsize=8)
         ax[0].legend(['output0', 'output1'], loc="best")
+        plt.subplots_adjust(top=0.85)
+        fig.tight_layout(h_pad=2)
         plt.savefig(plot_name + '.png', bbox_inches='tight')
         plt.clf()
 
@@ -235,8 +239,7 @@ class DataPlot:
                     fig.colorbar(pcm, cax=cax, orientation='vertical')
                     ax[p].set_xlabel('Parameter sweep ' + feat_name[1], fontsize=14)
                     ax[p].set_ylabel('Parameter sweep ' + feat_name[2], fontsize=14)
-                    ax[p].set_title('Test score ' + str(feat_name[0]) + ' ' + str(featmin[p]) + ' and algorithm ' +
-                                    algorithm[i].upper(), fontsize=16)
+                    ax[p].set_title('Parameter sweep with fixed ' + feat_name[0] + ' = ' + str(featmin[p]), fontsize=16)
                     ax[p].set_xticks(np.arange(0.5, len(featx) + 0.5), labels=featx, fontsize=12)
                     ax[p].set_yticks(np.arange(0.5, len(featy) + 0.5), labels=featy, fontsize=12)
                     plt.setp(ax[p].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
@@ -244,6 +247,10 @@ class DataPlot:
                         for h in range(len(featx)):
                             ax[p].text(h + 0.5, j + 0.5, str(round(test_matrix[j, h], 4)),
                                        ha="center", va="center", color="k", fontweight='bold', fontsize=10)
+                fig.suptitle('Test score assessment per parameter sweep with ' + algorithm[i].upper() + ' algorithm',
+                             fontsize=24)
+                plt.subplots_adjust(top=0.85)
+                fig.tight_layout(h_pad=2)
                 plt.savefig('Parameter sweep ' + algorithm[i].upper() + ' algorithm.png', bbox_inches='tight')
                 plt.clf()
 
