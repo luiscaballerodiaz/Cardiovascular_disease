@@ -63,7 +63,7 @@ class SupervisedAlgorithms:
         print("X_train_scaled type: {} and shape: {}".format(type(self.X_train_scaled), self.X_train_scaled.shape))
         print("X_test_scaled type: {} and shape: {} \n".format(type(self.X_test_scaled), self.X_test_scaled.shape))
 
-    def apply_algorithm(self, alg, pars, results, algorithm, params):
+    def apply_algorithm(self, algorithm, params, alg=None, pars=None, results=None):
         """Apply the machine learning algorithm to the train and test datasets"""
         time0 = time.time()
         if algorithm.lower() == 'knn':
@@ -114,12 +114,15 @@ class SupervisedAlgorithms:
         print('Scaled predicting time [seconds]: {}\n\n'.format(scaled_predict_time, 4))
         out = np.array([[unscaled_model_time, unscaled_predict_time, unscaled_train_score, unscaled_test_score,
                          scaled_model_time, scaled_predict_time, scaled_train_score, scaled_test_score]])
-        alg.append(algorithm)
-        pars.append(params)
-        if results.shape[0] == 0:
-            results = np.zeros([0, out.shape[1]])
-        results = np.append(results, out, axis=0)
-        return alg, pars, results
+        if alg is not None:
+            alg.append(algorithm)
+            pars.append(params)
+            if results.shape[0] == 0:
+                results = np.zeros([0, out.shape[1]])
+            results = np.append(results, out, axis=0)
+            return alg, pars, results
+        else:
+            return out[0, out.shape[1] - 1]
 
     def cross_grid_validation(self, algorithm, scale, param_grid, nfolds=5):
         time0 = time.time()

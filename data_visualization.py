@@ -123,7 +123,8 @@ class DataPlot:
             feat2 = []
             feat3 = []
             for j in range(len(params)):
-                if algorithm[i].title() in str(params[j]['classifier']):
+                string = str(params[j]['classifier'])
+                if (algorithm[i].title() in string) or (algorithm[i].upper() in string):
                     test.append(test_score[j])
                     for key, value in params[j].items():
                         if 'classifier__' in key:
@@ -139,26 +140,27 @@ class DataPlot:
                                     elif k == 2:
                                         feat3.append(value)
             if len(feat_name) == 1:
-                plt.subplots(figsize=(self.fig_width, self.fig_height))
-                plt.bar(range(1, len(test) + 1), test, color='b', width=self.bar_width, edgecolor='black',
-                        label='test score')
-                plt.xticks(range(1, len(test) + 1), feat1, ha='center', rotation=80)
-                for k in range(1, len(test) + 1):
-                    plt.text(k - self.bar_width / 2, test[k - 1] * 1.01, str(round(test[k - 1], 4)),
-                             fontsize=10)
-                plt.title('Test score assessment per parameter sweep with ' + algorithm[i].upper() + ' algorithm',
-                          fontsize=24)
-                plt.xlabel('Parameter sweep ' + feat_name[0], fontweight='bold', fontsize=14)
-                plt.ylabel('Test score', fontweight='bold', fontsize=14)
-                plt.legend()
-                plt.grid()
-                plt.savefig('Parameter sweep ' + algorithm[i].upper() + ' algorithm.png', bbox_inches='tight')
-                plt.clf()
+                test_matrix = np.array([test])
+                fig, ax = plt.subplots(figsize=(self.fig_width, self.fig_height))
+                plt.pcolormesh(test_matrix, cmap=plt.cm.PuBuGn)
+                plt.colorbar()
+                ax.set_xlabel('Parameter sweep ' + feat_name[0], fontsize=14)
+                ax.set_title('Test score assessment per parameter sweep with ' + algorithm[i].upper() + ' algorithm',
+                             fontsize=24)
+                ax.set_xticks(np.arange(0.5, len(feat1) + 0.5), labels=feat1, fontsize=14)
+                plt.yticks([])
+                plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+                for j in range(len(feat1)):
+                    ax.text(j + 0.5, 0.5, str(round(test_matrix[0, j], 4)),
+                            ha="center", va="center", color="k", fontweight='bold', fontsize=10)
+                fig.tight_layout(h_pad=2)
             if len(feat_name) == 2:
                 feat1_old = feat1.copy()
                 feat2_old = feat2.copy()
-                feat1 = list(dict.fromkeys(feat1_old))
-                feat2 = list(dict.fromkeys(feat2_old))
+                feat1 = []
+                feat2 = []
+                [feat1.append(x) for x in feat1_old if x not in feat1]
+                [feat2.append(x) for x in feat2_old if x not in feat2]
                 test_matrix = np.zeros([len(feat1), len(feat2)])
                 for j in range(len(feat1)):
                     for h in range(len(feat2)):
@@ -182,15 +184,17 @@ class DataPlot:
                     for h in range(len(feat2)):
                         ax.text(h + 0.5, j + 0.5, str(round(test_matrix[j, h], 4)),
                                 ha="center", va="center", color="k", fontweight='bold', fontsize=10)
-                plt.savefig('Parameter sweep ' + algorithm[i].upper() + ' algorithm.png', bbox_inches='tight')
-                plt.clf()
+                fig.tight_layout(h_pad=2)
             if len(feat_name) == 3:
                 feat1_old = feat1.copy()
                 feat2_old = feat2.copy()
                 feat3_old = feat3.copy()
-                feat1 = list(dict.fromkeys(feat1_old))
-                feat2 = list(dict.fromkeys(feat2_old))
-                feat3 = list(dict.fromkeys(feat3_old))
+                feat1 = []
+                feat2 = []
+                feat3 = []
+                [feat1.append(x) for x in feat1_old if x not in feat1]
+                [feat2.append(x) for x in feat2_old if x not in feat2]
+                [feat3.append(x) for x in feat3_old if x not in feat3]
                 if len(feat1) <= len(feat2) and len(feat1) <= len(feat3):
                     featmin = feat1
                     featx = feat2
@@ -221,7 +225,10 @@ class DataPlot:
                 if spare_axes == self.nfeat:
                     spare_axes = 0
                 for axis in range(self.nfeat - 1, self.nfeat - 1 - spare_axes, -1):
-                    fig.delaxes(axes[math.ceil(len(featmin) / self.nfeat) - 1, axis])
+                    if (math.ceil(len(featmin) / self.nfeat) - 1) == 0:
+                        fig.delaxes(axes[axis])
+                    else:
+                        fig.delaxes(axes[math.ceil(len(featmin) / self.nfeat) - 1, axis])
                 ax = axes.ravel()
                 for p in range(len(featmin)):
                     test_matrix = np.zeros([len(featy), len(featx)])
@@ -251,6 +258,6 @@ class DataPlot:
                              fontsize=24)
                 plt.subplots_adjust(top=0.85)
                 fig.tight_layout(h_pad=2)
-                plt.savefig('Parameter sweep ' + algorithm[i].upper() + ' algorithm.png', bbox_inches='tight')
-                plt.clf()
+            plt.savefig('Parameter sweep ' + algorithm[i].upper() + ' algorithm.png', bbox_inches='tight')
+            plt.clf()
 
