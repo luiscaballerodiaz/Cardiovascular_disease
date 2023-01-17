@@ -1,8 +1,5 @@
 import numpy as np
 import time
-import sys
-from openpyxl import Workbook
-import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
@@ -15,6 +12,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
 
 
 class SupervisedAlgorithms:
@@ -24,24 +23,12 @@ class SupervisedAlgorithms:
         self.fig_width = 20
         self.fig_height = 10
         self.bar_width = 0.25
-        self.method = []
-        self.parameters = []
-        self.out_data = np.zeros([0, 8])
-        self.pca = None
         self.X_train = None
         self.X_train_scaled = None
-        self.X_train_scaled_pca = None
-        self.X_test_scaled_pca = None
-        self.X_train_scaled_pca_output0 = None
-        self.X_train_scaled_pca_output1 = None
         self.X_test = None
         self.X_test_scaled = None
         self.y_train = None
         self.y_test = None
-        self.y_train_output0 = None
-        self.y_train_output1 = None
-        self.y_test_output0 = None
-        self.y_test_output1 = None
 
     def train_test_split(self, feature_data, class_data, test_size, algorithm):
         """Split data into training and test datasets and plot the class distribution in each set"""
@@ -55,59 +42,28 @@ class SupervisedAlgorithms:
         print("y_train type: {} and shape: {}".format(type(self.y_train), self.y_train.shape))
         print("y_test type: {} and shape: {} \n".format(type(self.y_test), self.y_test.shape))
         self.data_scaling(algorithm)
-        self.plot_output_class_distribution()
-        return self.X_train_scaled, self.y_train
-
-    def plot_output_class_distribution(self):
-        """Plot the class distribution in the training and test dataset"""
-        self.y_train_output1 = self.y_train[self.y_train == 1]
-        self.y_train_output0 = self.y_train[self.y_train == 0]
-        self.y_test_output1 = self.y_test[self.y_test == 1]
-        self.y_test_output0 = self.y_test[self.y_test == 0]
-        print("y_train_output1 type: {} and shape: {}".format(type(self.y_train_output1), self.y_train_output1.shape))
-        print("y_test_output1 type: {} and shape: {}".format(type(self.y_test_output1), self.y_test_output1.shape))
-        print("y_train_output0 type: {} and shape: {}".format(type(self.y_train_output0), self.y_train_output0.shape))
-        print("y_test_output0 type: {} and shape: {} \n".format(type(self.y_test_output0), self.y_test_output0.shape))
-
-        plt.subplots(figsize=(self.fig_width, self.fig_height))
-        plt.bar([1, 2], [self.y_train_output0.shape[0], self.y_test_output0.shape[0]],
-                color='r', width=self.bar_width, edgecolor='black', label='class=0')
-        plt.bar([1 + self.bar_width, 2 + self.bar_width], [self.y_train_output1.shape[0], self.y_test_output1.shape[0]],
-                color='b', width=self.bar_width, edgecolor='black', label='class=1')
-        plt.xticks([1 + self.bar_width / 2, 2 + self.bar_width / 2],
-                   ['Train data', 'Test data'], ha='center')
-        plt.text(1 - self.bar_width / 4, self.y_train_output0.shape[0] + 100,
-                 str(self.y_train_output0.shape[0]), fontsize=20)
-        plt.text(1 + 3 * self.bar_width / 4, self.y_train_output1.shape[0] + 100,
-                 str(self.y_train_output1.shape[0]), fontsize=20)
-        plt.text(2 - self.bar_width / 4, self.y_test_output0.shape[0] + 100,
-                 str(self.y_test_output0.shape[0]), fontsize=20)
-        plt.text(2 + 3 * self.bar_width / 4, self.y_test_output1.shape[0] + 100,
-                 str(self.y_test_output1.shape[0]), fontsize=20)
-        plt.title('Output class distribution between train and test datasets', fontsize=24)
-        plt.xlabel('Concepts', fontweight='bold', fontsize=14)
-        plt.ylabel('Count train/test class cases', fontweight='bold', fontsize=14)
-        plt.legend()
-        plt.grid()
-        plt.savefig('Count_class_cases.png', bbox_inches='tight')
-        plt.clf()
+        return self.X_train_scaled, self.y_train, self.X_test_scaled, self.y_test
 
     def data_scaling(self, algorithm):
         """Scaling data to normalization or standardization"""
         if algorithm.lower() == 'norm':
             scaler = MinMaxScaler()
-        elif algorithm.lower() == 'standard':
+            scaler.fit(self.X_train)
+            self.X_train_scaled = scaler.transform(self.X_train)
+            self.X_test_scaled = scaler.transform(self.X_test)
+        elif algorithm.lower() == 'std':
             scaler = StandardScaler()
+            scaler.fit(self.X_train)
+            self.X_train_scaled = scaler.transform(self.X_train)
+            self.X_test_scaled = scaler.transform(self.X_test)
         else:
-            print('Algorithm not correct')
-            return None
-        scaler.fit(self.X_train)
-        self.X_train_scaled = scaler.transform(self.X_train)
-        self.X_test_scaled = scaler.transform(self.X_test)
+            print('Data NOT scaled, algorithm is not correct')
+            self.X_train_scaled = self.X_train
+            self.X_test_scaled = self.X_test
         print("X_train_scaled type: {} and shape: {}".format(type(self.X_train_scaled), self.X_train_scaled.shape))
         print("X_test_scaled type: {} and shape: {} \n".format(type(self.X_test_scaled), self.X_test_scaled.shape))
 
-    def apply_algorithm(self, algorithm, params):
+    def apply_algorithm(self, alg, pars, results, algorithm, params):
         """Apply the machine learning algorithm to the train and test datasets"""
         time0 = time.time()
         if algorithm.lower() == 'knn':
@@ -120,7 +76,7 @@ class SupervisedAlgorithms:
             model = GaussianNB()
         elif algorithm.lower() == 'tree':
             model = DecisionTreeClassifier(random_state=0)
-        elif algorithm.lower() == 'forest':
+        elif algorithm.lower() == 'forest' or algorithm.lower() == 'random':
             model = RandomForestClassifier(random_state=0)
         elif algorithm.lower() == 'gradient':
             model = GradientBoostingClassifier(random_state=0)
@@ -155,46 +111,53 @@ class SupervisedAlgorithms:
         time4 = time.time()
         scaled_predict_time = round(time4 - time3, 4)
         print('Scaled predicting time [seconds]: {}\n\n'.format(scaled_predict_time, 4))
-        results = np.array([[unscaled_model_time, unscaled_predict_time, unscaled_train_score, unscaled_test_score,
-                             scaled_model_time, scaled_predict_time, scaled_train_score, scaled_test_score]])
-        self.out_data = np.append(self.out_data, results, axis=0)
-        self.method.append(algorithm)
-        self.parameters.append(params)
+        out = np.array([[unscaled_model_time, unscaled_predict_time, unscaled_train_score, unscaled_test_score,
+                         scaled_model_time, scaled_predict_time, scaled_train_score, scaled_test_score]])
+        alg.append(algorithm)
+        pars.append(params)
+        if results.shape[0] == 0:
+            results = np.zeros([0, out.shape[1]])
+        results = np.append(results, out, axis=0)
+        return alg, pars, results
 
-    def write_results_excel_file(self, name):
-        """Write the simulation results in an output excel file"""
-        # Create excel file with the corresponding sheets
-        sheets = []
-        wb = Workbook()
-        sheets.append(wb.active)
-        sheets[0].title = 'SIMULATION RESULTS'
-        # Define column width
-        for column in range(1, 11):
-            column_char = str(chr(64 + column))
-            if column == 2:
-                sheets[0].column_dimensions[column_char].width = 60
+    def cross_grid_validation(self, algorithm, scale, param_grid, nfolds=5):
+        time0 = time.time()
+        model = []
+        scaler = []
+        for i in range(len(algorithm)):
+            if algorithm[i].lower() == 'knn':
+                model.append(KNeighborsClassifier())
+            elif algorithm[i].lower() == 'logreg':
+                model.append(LogisticRegression(random_state=0))
+            elif algorithm[i].lower() == 'linearsvc':
+                model.append(LinearSVC(random_state=0))
+            elif algorithm[i].lower() == 'naivebayes':
+                model.append(GaussianNB())
+            elif algorithm[i].lower() == 'tree':
+                model.append(DecisionTreeClassifier(random_state=0))
+            elif algorithm[i].lower() == 'forest' or algorithm[i].lower() == 'random':
+                model.append(RandomForestClassifier(random_state=0))
+            elif algorithm[i].lower() == 'gradient':
+                model.append(GradientBoostingClassifier(random_state=0))
+            elif algorithm[i].lower() == 'svm':
+                model.append(SVC(random_state=0))
+            elif algorithm[i].lower() == 'mlp':
+                model.append(MLPClassifier(random_state=0))
             else:
-                sheets[0].column_dimensions[column_char].width = 20
-        # Write headers
-        header = ['Algorithm', 'Params', 'Unscaled Model Time', 'Unscaled Predict Time', 'Unscaled Train Score',
-                  'Unscaled Test Score', 'Scaled Model Time', 'Scaled Predict Time', 'Scaled Train Score',
-                  'Scaled Test Score']
-        for i in range(len(header)):
-            sheets[0].cell(1, i + 1).value = header[i]
-        # Write algorithms
-        for i in range(len(self.method)):
-            sheets[0].cell(i + 2, 1).value = self.method[i]
-        # Write parameters
-        for i in range(len(self.parameters)):
-            str_params = ''
-            for key, value in self.parameters[i].items():
-                str_params += ' ' + key + '=' + str(value)
-            sheets[0].cell(i + 2, 2).value = str_params
-        # Write data in excel sheet
-        for i in range(self.out_data.shape[0]):
-            for j in range(self.out_data.shape[1]):
-                sheets[0].cell(i + 2, j + 3).value = self.out_data[i, j]
-        try:
-            wb.save(name)
-        except PermissionError:
-            sys.exit('ERROR: Excel file open. Please close it to be modified')
+                return None
+            if scale[i].lower() == 'norm':
+                scaler.append(MinMaxScaler())
+            elif scale[i].lower() == 'std':
+                scaler.append(StandardScaler())
+            else:
+                scaler.append(None)
+            param_grid[i]['classifier'] = [model[i]]
+            param_grid[i]['preprocessing'] = [scaler[i]]
+        pipe = Pipeline([('preprocessing', scaler), ('classifier', model)])
+        grid_search = GridSearchCV(pipe, param_grid, cv=nfolds, scoring='accuracy')
+        grid_search.fit(self.X_train, self.y_train)
+        print("Best parameters: {}".format(grid_search.best_params_))
+        print("Best cross-validation score: {:.4f}".format(grid_search.best_score_))
+        print("Test set score: {:.4f}".format(grid_search.score(self.X_test, self.y_test)))
+        print('Grid search time: {:.1f}'.format(time.time() - time0))
+        return grid_search

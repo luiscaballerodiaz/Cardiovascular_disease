@@ -10,6 +10,7 @@ class DataPreprocessing:
     def __init__(self, dataset):
         self.df = dataset
         self.percentile = 0.02
+        pd.set_option('display.max_columns', None)
 
     def data_scrubbing(self, max_filter=False, min_filter=False, max_threshold=1, min_threshold=0,
                        columns_to_remove='', concept1='', concept2='', encodings='', class_column_name=''):
