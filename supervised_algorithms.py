@@ -66,27 +66,7 @@ class SupervisedAlgorithms:
     def apply_algorithm(self, algorithm, params, alg=None, pars=None, results=None):
         """Apply the machine learning algorithm to the train and test datasets"""
         time0 = time.time()
-        if algorithm.lower() == 'knn':
-            model = KNeighborsClassifier()
-        elif algorithm.lower() == 'logreg':
-            model = LogisticRegression(random_state=0)
-        elif algorithm.lower() == 'linearsvc':
-            model = LinearSVC(random_state=0, dual=False)
-        elif algorithm.lower() == 'naivebayes':
-            model = GaussianNB()
-        elif algorithm.lower() == 'tree':
-            model = DecisionTreeClassifier(random_state=0)
-        elif algorithm.lower() == 'forest' or algorithm.lower() == 'random':
-            model = RandomForestClassifier(random_state=0)
-        elif algorithm.lower() == 'gradient':
-            model = GradientBoostingClassifier(random_state=0)
-        elif algorithm.lower() == 'svm':
-            model = SVC(random_state=0)
-        elif algorithm.lower() == 'mlp':
-            model = MLPClassifier(random_state=0)
-        else:
-            print('Algorithm was NOT provided.')
-            return None
+        model = self.create_model(algorithm)
         for key, value in params.items():
             setattr(model, key, value)
         print('SCORE WITH {} ALGORITHM AND PARAMS {}\n'.format(algorithm, params))
@@ -129,27 +109,7 @@ class SupervisedAlgorithms:
         model = []
         scaler = []
         for i in range(len(algorithm)):
-            if algorithm[i].lower() == 'knn':
-                model.append(KNeighborsClassifier())
-            elif algorithm[i].lower() == 'logreg':
-                model.append(LogisticRegression(random_state=0))
-            elif algorithm[i].lower() == 'linearsvc':
-                model.append(LinearSVC(random_state=0, dual=False))
-            elif 'naive' in algorithm[i].lower() or 'bayes' in algorithm[i].lower():
-                model.append(GaussianNB())
-            elif algorithm[i].lower() == 'tree':
-                model.append(DecisionTreeClassifier(random_state=0))
-            elif algorithm[i].lower() == 'forest' or algorithm[i].lower() == 'random':
-                model.append(RandomForestClassifier(random_state=0))
-            elif algorithm[i].lower() == 'gradient':
-                model.append(GradientBoostingClassifier(random_state=0))
-            elif algorithm[i].lower() == 'svm':
-                model.append(SVC(random_state=0))
-            elif algorithm[i].lower() == 'mlp':
-                model.append(MLPClassifier(random_state=0))
-            else:
-                print('Algorithm was NOT provided. Note the type must be a list.')
-                return None
+            model.append(self.create_model(algorithm[i]))
             if scale[i].lower() == 'norm':
                 scaler.append(MinMaxScaler())
             elif scale[i].lower() == 'std':
@@ -166,3 +126,28 @@ class SupervisedAlgorithms:
         print("Test set score: {:.4f}".format(grid_search.score(self.X_test, self.y_test)))
         print('Grid search time: {:.1f}'.format(time.time() - time0))
         return grid_search
+
+    @staticmethod
+    def create_model(algorithm):
+        if algorithm.lower() == 'knn':
+            model = KNeighborsClassifier()
+        elif 'logistic' in algorithm.lower() or 'regression' in algorithm.lower() or 'logreg' in algorithm.lower():
+            model = LogisticRegression(random_state=0)
+        elif 'linear' in algorithm.lower() or 'svc' in algorithm.lower():
+            model = LinearSVC(random_state=0, dual=False)
+        elif 'naive' in algorithm.lower() or 'bayes' in algorithm.lower():
+            model = GaussianNB()
+        elif algorithm.lower() == 'tree':
+            model = DecisionTreeClassifier(random_state=0)
+        elif algorithm.lower() == 'forest' or algorithm.lower() == 'random':
+            model = RandomForestClassifier(random_state=0)
+        elif 'gradient' in algorithm.lower() or 'boosting' in algorithm.lower():
+            model = GradientBoostingClassifier(random_state=0)
+        elif algorithm.lower() == 'svm':
+            model = SVC(random_state=0)
+        elif algorithm.lower() == 'mlp':
+            model = MLPClassifier(random_state=0)
+        else:
+            print('Algorithm was NOT provided. Note the type must be a list.')
+            return None
+        return model
