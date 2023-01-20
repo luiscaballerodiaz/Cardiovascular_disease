@@ -71,7 +71,7 @@ class SupervisedAlgorithms:
         elif algorithm.lower() == 'logreg':
             model = LogisticRegression(random_state=0)
         elif algorithm.lower() == 'linearsvc':
-            model = LinearSVC(random_state=0)
+            model = LinearSVC(random_state=0, dual=False)
         elif algorithm.lower() == 'naivebayes':
             model = GaussianNB()
         elif algorithm.lower() == 'tree':
@@ -134,7 +134,7 @@ class SupervisedAlgorithms:
             elif algorithm[i].lower() == 'logreg':
                 model.append(LogisticRegression(random_state=0))
             elif algorithm[i].lower() == 'linearsvc':
-                model.append(LinearSVC(random_state=0))
+                model.append(LinearSVC(random_state=0, dual=False))
             elif algorithm[i].lower() == 'naivebayes':
                 model.append(GaussianNB())
             elif algorithm[i].lower() == 'tree':
