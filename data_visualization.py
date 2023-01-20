@@ -122,6 +122,12 @@ class DataPlot:
             feat1 = []
             feat2 = []
             feat3 = []
+            if algorithm[i] == 'linearsvc' or algorithm[i] == 'linear svc':
+                algorithm[i] = 'LinearSVC'
+            if algorithm[i] == 'logreg' or algorithm[i] == 'logistic regression':
+                algorithm[i] = 'LogisticRegression'
+            if algorithm[i].lower() == 'svm':
+                algorithm[i] = 'SVC'
             for j in range(len(params)):
                 string = str(params[j]['classifier'])
                 if (algorithm[i].title() in string) or (algorithm[i].upper() in string):
