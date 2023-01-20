@@ -135,7 +135,7 @@ class SupervisedAlgorithms:
                 model.append(LogisticRegression(random_state=0))
             elif algorithm[i].lower() == 'linearsvc':
                 model.append(LinearSVC(random_state=0, dual=False))
-            elif algorithm[i].lower() == 'naivebayes':
+            elif 'naive' in algorithm[i].lower() or 'bayes' in algorithm[i].lower():
                 model.append(GaussianNB())
             elif algorithm[i].lower() == 'tree':
                 model.append(DecisionTreeClassifier(random_state=0))

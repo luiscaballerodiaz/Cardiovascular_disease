@@ -128,6 +128,8 @@ class DataPlot:
                 algorithm[i] = 'LogisticRegression'
             if algorithm[i].lower() == 'svm':
                 algorithm[i] = 'SVC'
+            if 'naive' in algorithm[i].lower() or 'bayes' in algorithm[i].lower():
+                algorithm[i] = 'NB'
             for j in range(len(params)):
                 string = str(params[j]['classifier'])
                 if (algorithm[i].title() in string) or (algorithm[i].upper() in string):
@@ -145,6 +147,13 @@ class DataPlot:
                                         feat2.append(value)
                                     elif k == 2:
                                         feat3.append(value)
+            if not feat_name:
+                fig, ax = plt.subplots(figsize=(self.fig_width, self.fig_height))
+                ax.set_title('Test score assessment per parameter sweep with ' + algorithm[i].upper() + ' algorithm',
+                             fontsize=24)
+                ax.text(0.5, 0.5, str(round(test[0], 4)), ha="center", va="center", color="k", fontweight='bold',
+                        fontsize=10)
+                fig.tight_layout(h_pad=2)
             if len(feat_name) == 1:
                 test_matrix = np.array([test])
                 fig, ax = plt.subplots(figsize=(self.fig_width, self.fig_height))
