@@ -104,7 +104,8 @@ class SupervisedAlgorithms:
         else:
             return out[0, out.shape[1] - 1]
 
-    def cross_grid_validation(self, algorithm, scale, param_grid, nfolds=5):
+    def cross_grid_validation(self, alg, scale, param_grid, nfolds=5):
+        algorithm = alg.copy()
         time0 = time.time()
         model = []
         scaler = []
@@ -124,7 +125,7 @@ class SupervisedAlgorithms:
         print("Best parameters: {}".format(grid_search.best_params_))
         print("Best cross-validation score: {:.4f}".format(grid_search.best_score_))
         print("Test set score: {:.4f}".format(grid_search.score(self.X_test, self.y_test)))
-        print('Grid search time: {:.1f}'.format(time.time() - time0))
+        print('Grid search time: {:.1f}\n'.format(time.time() - time0))
         return grid_search
 
     @staticmethod
@@ -148,6 +149,6 @@ class SupervisedAlgorithms:
         elif algorithm.lower() == 'mlp':
             model = MLPClassifier(random_state=0)
         else:
-            print('Algorithm was NOT provided. Note the type must be a list.')
+            print('\nERROR: Algorithm was NOT provided. Note the type must be a list.\n')
             return None
         return model
