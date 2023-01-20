@@ -260,4 +260,3 @@ class DataPlot:
                 fig.tight_layout(h_pad=2)
             plt.savefig('Parameter sweep ' + algorithm[i].upper() + ' algorithm.png', bbox_inches='tight')
             plt.clf()
-
