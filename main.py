@@ -48,7 +48,7 @@ if cross_validation:
          'classifier__hidden_layer_sizes': [25, 50, 100, [5, 5], [25, 25], [50, 50]]}]
     grid = supervised.cross_grid_validation(algorithm, scale, param_grid=params, nfolds=5)
     pd_grid = pd.DataFrame(grid.cv_results_)
-    visualization.param_sweep_plot(algorithm=algorithm, params=pd_grid['params'], test_score=pd_grid['mean_test_score'])
+    visualization.param_sweep_plot(algorithm, params=pd_grid['params'], test_score=pd_grid['mean_test_score'])
 else:
     alg = []
     pars = []

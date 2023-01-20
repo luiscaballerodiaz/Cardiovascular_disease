@@ -104,8 +104,7 @@ class SupervisedAlgorithms:
         else:
             return out[0, out.shape[1] - 1]
 
-    def cross_grid_validation(self, alg, scale, param_grid, nfolds=5):
-        algorithm = alg.copy()
+    def cross_grid_validation(self, algorithm, scale, param_grid, nfolds=5):
         time0 = time.time()
         model = []
         scaler = []

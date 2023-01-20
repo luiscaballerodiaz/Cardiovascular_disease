@@ -115,7 +115,8 @@ class DataPlot:
         plt.savefig('Count_class_cases.png', bbox_inches='tight')
         plt.clf()
 
-    def param_sweep_plot(self, algorithm, params, test_score):
+    def param_sweep_plot(self, alg, params, test_score):
+        algorithm = alg.copy()
         for i in range(len(algorithm)):
             test = []
             feat_name = []
