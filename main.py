@@ -46,8 +46,7 @@ if cross_validation:
         {'classifier': [], 'preprocessing': [], 'classifier__activation': ['tanh', 'relu', 'logistic'],
          'classifier__alpha': [0.005, 0.01, 0.1, 0.25, 0.5],
          'classifier__hidden_layer_sizes': [25, 50, 100, [5, 5], [25, 25], [50, 50]]}]
-    grid = supervised.cross_grid_validation(algorithm=algorithm, scale=scale,
-                                            param_grid=params, nfolds=5)
+    grid = supervised.cross_grid_validation(algorithm, scale, param_grid=params, nfolds=5)
     pd_grid = pd.DataFrame(grid.cv_results_)
     visualization.param_sweep_plot(algorithm=algorithm, params=pd_grid['params'], test_score=pd_grid['mean_test_score'])
 else:
