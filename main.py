@@ -1,17 +1,19 @@
 from supervised_algorithms import SupervisedAlgorithms
 from data_preprocessing import DataPreprocessing
 from data_visualization import DataPlot
+from gridsearch_postprocess import GridSearchPostProcess
 from pca_analysis import PCAanalysis
 import utils
 import pandas as pd
 import numpy as np
 
 
-cross_validation = 0
+cross_validation = 1
 sourcedf = pd.read_csv('cardio_train.csv')
 print("Full source data from CSV type: {} and shape: {}".format(type(sourcedf), sourcedf.shape))
 supervised = SupervisedAlgorithms()
-visualization = DataPlot()
+visualization = DataPlot()  # Instantiate an object for DataPlot to manage plots in this exercise
+sweep = GridSearchPostProcess()  # Instantiate an object for GridSearchPostProcess to manage the grid search results
 preprocessing = DataPreprocessing(sourcedf.copy())
 
 df_unscaled = preprocessing.data_scrubbing(columns_to_remove='id', concept1='ap_lo', concept2='ap_hi',
@@ -48,7 +50,7 @@ if cross_validation:
          'classifier__hidden_layer_sizes': [25, 50, 100, [5, 5], [25, 25], [50, 50]]}]
     grid = supervised.cross_grid_validation(algorithm, scale, param_grid=params, nfolds=5)
     pd_grid = pd.DataFrame(grid.cv_results_)
-    visualization.param_sweep_plot(algorithm, params=pd_grid['params'], test_score=pd_grid['mean_test_score'])
+    sweep.param_sweep_matrix(params=pd_grid['params'], test_score=pd_grid['mean_test_score'])
 else:
     alg = []
     pars = []
